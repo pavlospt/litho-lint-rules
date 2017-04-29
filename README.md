@@ -14,6 +14,14 @@ Litho Lint rules is a project that contains Lint rules generated according to [L
 
 ## Usage
 
+You can add Litho-Lint-Rules as a dependency on your project, through Gradle:
+
+```groovy
+compile 'com.github.pavlospt:litho-lint:1.0'
+```
+
+                                                    OR
+
 Copy [litho-lint-v1.0.jar](https://github.com/pavlospt/litho-lint-rules/blob/master/jar-releases/litho-lint-v1.0.jar) and place it on your `.android/lint` folder. If you do not have a `lint` folder, you may create one.
 
 Run `Code Inspection` through Android Studio or just run `./gradlew clean :app:lint`
