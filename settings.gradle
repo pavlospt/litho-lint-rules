@@ -1,1 +1,1 @@
-include ':app', ':litho-lint'
+include ':app', ':litho-lint-detector', ':litho-lint'
