@@ -7,8 +7,8 @@ android {
   defaultConfig {
     minSdkVersion 15
     targetSdkVersion 25
-    versionCode 1
-    versionName "1.0"
+    versionCode 2
+    versionName "1.1"
   }
 
   lintOptions {
@@ -42,7 +42,7 @@ project.afterEvaluate {
 ext {
   PUBLISH_GROUP_ID = 'com.github.pavlospt'
   PUBLISH_ARTIFACT_ID = 'litho-lint'
-  PUBLISH_VERSION = '1.0'
+  PUBLISH_VERSION = '1.1'
 }
 
 apply from: 'https://raw.githubusercontent.com/ArthurHub/release-android-library/master/android-release-aar.gradle'
