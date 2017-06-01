@@ -59,15 +59,15 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
       PsiAnnotation[] annotations = psiClass.getModifierList().getAnnotations();
 
       for (PsiAnnotation annotation : annotations) {
-        boolean worthCheckingClass =
-            LithoLintConstants.LAYOUT_SPEC_ANNOTATION.equals(annotation.getQualifiedName());
+        boolean worthCheckingClass = LithoLintConstants.INSTANCE.getLAYOUT_SPEC_ANNOTATION()
+            .equals(annotation.getQualifiedName());
 
         String psiClassName = psiClass.getName();
 
         if (psiClassName == null) continue;
 
         boolean notSuggestedName = !psiClass.getName()
-            .contains(LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT);
+            .contains(LithoLintConstants.INSTANCE.getSUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT());
 
         boolean shouldReportClass = worthCheckingClass && notSuggestedName;
 
@@ -111,13 +111,13 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
 
         for (PsiAnnotation annotation : annotations) {
 
-          if (LithoLintConstants.PROP_PARAMETER_ANNOTATION.equals(annotation.getQualifiedName())) {
+          if (LithoLintConstants.INSTANCE.getPROP_PARAMETER_ANNOTATION()
+              .equals(annotation.getQualifiedName())) {
 
-            if (LithoLintConstants.POSSIBLE_RESOURCE_PARAMETER_TYPES.contains(
-                parameter.getType().getCanonicalText())) {
+            if (LithoLintConstants.INSTANCE.getPOSSIBLE_RESOURCE_PARAMETER_TYPES()
+                .contains(parameter.getType().getCanonicalText())) {
               context.report(IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE, parameter,
-                  context.getLocation(parameter),
-                  IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE_DESC);
+                  context.getLocation(parameter), IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE_DESC);
             }
           }
         }
@@ -144,7 +144,8 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
         PsiAnnotation propAnnotation = null;
 
         for (PsiAnnotation annotation : annotations) {
-          if (LithoLintConstants.PROP_PARAMETER_ANNOTATION.equals(annotation.getQualifiedName())) {
+          if (LithoLintConstants.INSTANCE.getPROP_PARAMETER_ANNOTATION()
+              .equals(annotation.getQualifiedName())) {
             propAnnotation = annotation;
             break;
           }
@@ -161,8 +162,8 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
             indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i);
           } else {
             for (PsiNameValuePair psiNameValuePair : psiNameValuePairs) {
-              if (LithoLintConstants.OPTIONAL_PROP_ATTRIBUTE_NAME.equals(
-                  psiNameValuePair.getName())) {
+              if (LithoLintConstants.INSTANCE.getOPTIONAL_PROP_ATTRIBUTE_NAME()
+                  .equals(psiNameValuePair.getName())) {
                 indexOfFirstOptionalProp = assignPositionIfInvalid(indexOfFirstOptionalProp, i);
               } else {
                 indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i);
@@ -196,10 +197,10 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
       for (PsiParameter parameter : parameters) {
         if (parameter.getType()
             .getCanonicalText()
-            .equals(LithoLintConstants.COMPONENT_CONTEXT_CLASS_NAME)) {
+            .equals(LithoLintConstants.INSTANCE.getCOMPONENT_CONTEXT_CLASS_NAME())) {
           boolean shouldReportParameter =
-              !LithoLintConstants.COMPONENT_CONTEXT_DESIRABLE_PARAMETER_NAME.equals(
-                  parameter.getName());
+              !LithoLintConstants.INSTANCE.getCOMPONENT_CONTEXT_DESIRABLE_PARAMETER_NAME()
+                  .equals(parameter.getName());
 
           if (shouldReportParameter) {
             context.report(IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_ISSUE, parameter,
@@ -217,8 +218,8 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
       PsiAnnotation[] annotations = psiMethod.getModifierList().getAnnotations();
 
       for (PsiAnnotation annotation : annotations) {
-        boolean worthCheckingMethod =
-            LithoLintConstants.ALL_METHOD_ANNOTATIONS.contains(annotation.getQualifiedName());
+        boolean worthCheckingMethod = LithoLintConstants.INSTANCE.getALL_METHOD_ANNOTATIONS()
+            .contains(annotation.getQualifiedName());
 
         boolean notSuggestedVisibility =
             !psiMethod.getModifierList().hasModifierProperty(PsiModifier.PACKAGE_LOCAL)
@@ -243,8 +244,8 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
       boolean worthCheckingMethod = false;
 
       for (PsiAnnotation annotation : annotations) {
-        worthCheckingMethod =
-            LithoLintConstants.ALL_METHOD_ANNOTATIONS.contains(annotation.getQualifiedName());
+        worthCheckingMethod = LithoLintConstants.INSTANCE.getALL_METHOD_ANNOTATIONS()
+            .contains(annotation.getQualifiedName());
 
         if (worthCheckingMethod) break;
       }
