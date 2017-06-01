@@ -54,7 +54,7 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
 
     // Detect annotated class name issue
     private static void detectAnnotatedClassNameIssue(JavaContext context, PsiClass psiClass) {
-      if (!PsiUtils.INSTANCE.hasAnnotations(psiClass.getModifierList())) return;
+      if (!PsiUtils.hasAnnotations(psiClass.getModifierList())) return;
 
       PsiAnnotation[] annotations = psiClass.getModifierList().getAnnotations();
 
@@ -137,7 +137,7 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
       for (int i = 0; i < parameters.length; i++) {
         PsiParameter parameter = parameters[i];
 
-        if (!PsiUtils.INSTANCE.hasAnnotations(parameter.getModifierList())) continue;
+        if (!PsiUtils.hasAnnotations(parameter.getModifierList())) continue;
 
         PsiAnnotation[] annotations = parameter.getModifierList().getAnnotations();
 
@@ -213,7 +213,7 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
 
     // Detect method visibility issue
     private void detectMethodVisibilityIssue(PsiMethod psiMethod) {
-      if (!PsiUtils.INSTANCE.hasAnnotations(psiMethod.getModifierList())) return;
+      if (!PsiUtils.hasAnnotations(psiMethod.getModifierList())) return;
 
       PsiAnnotation[] annotations = psiMethod.getModifierList().getAnnotations();
 
@@ -237,7 +237,7 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
 
     // Utility method
     private boolean worthCheckingMethod(PsiMethod psiMethod) {
-      if (!PsiUtils.INSTANCE.hasAnnotations(psiMethod.getModifierList())) return false;
+      if (!PsiUtils.hasAnnotations(psiMethod.getModifierList())) return false;
 
       PsiAnnotation[] annotations = psiMethod.getModifierList().getAnnotations();
 
@@ -250,7 +250,7 @@ public class LithoLintIssuesDetector extends Detector implements Detector.JavaPs
         if (worthCheckingMethod) break;
       }
 
-      return worthCheckingMethod && PsiUtils.INSTANCE.hasParameters(psiMethod);
+      return worthCheckingMethod && PsiUtils.hasParameters(psiMethod);
     }
 
     // Utility method

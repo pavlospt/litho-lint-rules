@@ -6,9 +6,11 @@ import com.intellij.psi.PsiParameterList
 
 object PsiUtils {
 
+  @JvmStatic
   fun hasAnnotations(
       psiModifierList: PsiModifierList?): Boolean = psiModifierList?.annotations?.isNotEmpty() ?: false
 
+  @JvmStatic
   fun hasParameters(
       psiMethod: PsiMethod?): Boolean {
     val psiParameterList: PsiParameterList? = psiMethod?.parameterList
