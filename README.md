@@ -14,8 +14,6 @@ Litho Lint rules is a project that contains Lint rules generated according to [L
 
 ## Usage
 
-1) You can add Litho-Lint-Rules as a dependency on your project, through Gradle:
-
 ```groovy
 compile 'com.github.pavlospt:litho-lint:1.0'
 ```
