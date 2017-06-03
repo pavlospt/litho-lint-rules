@@ -15,7 +15,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 
 
-class LithoLintIssuesDetector: Detector(), Detector.JavaPsiScanner {
+class LithoLintIssuesDetector : Detector(), Detector.JavaPsiScanner {
 
   override fun getApplicablePsiTypes(): List<Class<out PsiElement>> {
     return listOf<Class<out PsiElement>>(PsiClass::class.java)
@@ -83,19 +83,20 @@ class LithoLintIssuesDetector: Detector(), Detector.JavaPsiScanner {
       val parameters = parametersList.parameters
 
       for (parameter in parameters) {
+        if (parameter.type.canonicalText
+            !in LithoLintConstants.POSSIBLE_RESOURCE_PARAMETER_TYPES) continue
+
         val annotations = parameter.modifierList?.annotations
 
-        annotations?.let {
-          it.forEach {
-            if (LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName) {
-
-              if (parameter.type.canonicalText in LithoLintConstants.POSSIBLE_RESOURCE_PARAMETER_TYPES) {
+        annotations
+            ?.let {
+              it.filter {
+                LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName
+              }.forEach {
                 context?.report(IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE, parameter,
                     context.getLocation(parameter), IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE_DESC)
               }
             }
-          }
-        }
       }
     }
 
@@ -119,11 +120,8 @@ class LithoLintIssuesDetector: Detector(), Detector.JavaPsiScanner {
         var propAnnotation: PsiAnnotation? = null
 
         annotations?.let {
-          it.forEach annotationsLoop@ {
-            if (LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName) {
-              propAnnotation = it
-              return@annotationsLoop
-            }
+          propAnnotation = it.find {
+            LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName
           }
         }
 
