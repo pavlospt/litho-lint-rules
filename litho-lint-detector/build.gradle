@@ -13,6 +13,9 @@ dependencies {
   implementation deps.lint.checks
   lintChecks files(jar)
   implementation deps.kotlin.stdLibJre8
+
+  testImplementation deps.lint.core
+  testImplementation deps.lint.tests
 }
 
 jar {
@@ -20,6 +23,18 @@ jar {
     attributes('Lint-Registry': 'com.github.pavlospt.LithoIssueRegistry')
   }
 }
+
+// Related to https://issuetracker.google.com/issues/38454212
+task copyTestClasses(type: Copy) {
+  from "build/classes/kotlin"
+  into "build/classes/java"
+}
+
+afterEvaluate {
+  testClasses.dependsOn copyTestClasses
+}
+//
+
 buildscript {
   repositories {
     mavenCentral()
