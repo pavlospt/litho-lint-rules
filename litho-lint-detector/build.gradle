@@ -9,10 +9,10 @@ configurations {
 }
 
 dependencies {
-  compile 'com.android.tools.lint:lint-api:25.3.0'
-  compile 'com.android.tools.lint:lint-checks:25.3.0'
+  implementation deps.lint.api
+  implementation deps.lint.checks
   lintChecks files(jar)
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+  implementation deps.kotlin.stdLibJre8
 }
 
 jar {
@@ -21,14 +21,16 @@ jar {
   }
 }
 buildscript {
-    ext.kotlin_version = '1.1.2-4'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath deps.kotlin.gradlePlugin
+  }
 }
 repositories {
-    mavenCentral()
+  mavenCentral()
+  maven {
+    url "https://maven.google.com"
+  }
 }
