@@ -15,7 +15,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 
 
-class LithoLintIssuesDetector : Detector(), Detector.JavaPsiScanner {
+class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
   override fun getApplicablePsiTypes(): List<Class<out PsiElement>> {
     return listOf<Class<out PsiElement>>(PsiClass::class.java)
