@@ -6,7 +6,6 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.github.pavlospt.misc.IssuesInfo
 import com.github.pavlospt.misc.LithoLintConstants
 import com.github.pavlospt.utils.PsiUtils
-import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
