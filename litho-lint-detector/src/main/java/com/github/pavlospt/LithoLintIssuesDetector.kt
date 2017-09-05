@@ -1,5 +1,6 @@
 package com.github.pavlospt
 
+import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.JavaContext
 import com.github.pavlospt.misc.IssuesInfo
@@ -13,22 +14,25 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UMethod
 
 
 class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
-  override fun getApplicablePsiTypes(): List<Class<out PsiElement>> {
-    return listOf<Class<out PsiElement>>(PsiClass::class.java)
+  override fun getApplicableUastTypes(): List<Class<out UElement>> {
+    return listOf<Class<out UElement>>(UClass::class.java)
   }
 
-  override fun createPsiVisitor(context: JavaContext?): JavaElementVisitor {
-    return object : JavaElementVisitor() {
-      override fun visitClass(node: PsiClass) {
-        node.accept(LithoVisitor(context))
+  override fun createUastHandler(context: JavaContext?): UElementHandler {
+    return object : UElementHandler() {
+      override fun visitClass(uClass: UClass?) {
+        uClass?.accept(LithoVisitor(context))
       }
 
-      override fun visitMethod(method: PsiMethod) {
-        method.accept(LithoVisitor(context))
+      override fun visitMethod(uMethod: UMethod?) {
+        uMethod?.accept(LithoVisitor(context))
       }
     }
   }
