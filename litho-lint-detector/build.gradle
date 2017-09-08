@@ -35,15 +35,13 @@ afterEvaluate {
 }
 //
 
-task copyLintJar(type: Copy) {
-  description = 'Copies the lint jar file into the {user.home}/.android/lint folder.'
-  from('build/libs/')
-  into(System.getProperty("user.home") + '/.android/lint')
-  include("*.jar")
+task install(type: Copy, dependsOn: assemble) {
+  from configurations.lintChecks
+  into System.getProperty('user.home') + '/.android/lint/'
 }
 
 // Runs the copyLintJar task after assemble has completed.
-assemble.finalizedBy(copyLintJar)
+assemble.finalizedBy(install)
 
 defaultTasks 'assemble'
 
