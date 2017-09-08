@@ -35,13 +35,14 @@ afterEvaluate {
 }
 //
 
+// Runs the copyLintJar task after assemble has completed.
 task install(type: Copy, dependsOn: assemble) {
   from configurations.lintChecks
   into System.getProperty('user.home') + '/.android/lint/'
 }
 
-// Runs the copyLintJar task after assemble has completed.
 assemble.finalizedBy(install)
+//
 
 defaultTasks 'assemble'
 
