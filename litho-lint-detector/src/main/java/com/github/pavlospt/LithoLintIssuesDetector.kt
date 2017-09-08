@@ -62,7 +62,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
           val psiClassName = uClass.name ?: return@annotationsLoop
 
-          val notSuggestedName = psiClassName in LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT
+          val notSuggestedName = LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT !in psiClassName
 
           val shouldReportClass = worthCheckingClass && notSuggestedName
 
