@@ -156,9 +156,10 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
           val shouldReportParameter = LithoLintConstants.COMPONENT_CONTEXT_DESIRABLE_PARAMETER_NAME != parameter.name
 
           if (shouldReportParameter) {
+            val lintFix = fix().replace().text(parameter.name).with("c").build()
             context?.report(IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_ISSUE, parameter as UElement,
                 context.getLocation(parameter as UElement),
-                IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_DESC)
+                IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_DESC, lintFix)
           }
         }
       }
