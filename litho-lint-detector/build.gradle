@@ -24,17 +24,6 @@ jar {
   }
 }
 
-// Related to https://issuetracker.google.com/issues/38454212
-task copyTestClasses(type: Copy) {
-  from "build/classes/kotlin"
-  into "build/classes/java"
-}
-
-afterEvaluate {
-  testClasses.dependsOn copyTestClasses
-}
-//
-
 // Runs the copyLintJar task after assemble has completed.
 task install(type: Copy, dependsOn: assemble) {
   from configurations.lintChecks

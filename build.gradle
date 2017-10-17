@@ -46,3 +46,13 @@ allprojects {
 task clean(type: Delete) {
   delete rootProject.buildDir
 }
+
+// Related to https://issuetracker.google.com/issues/38454212
+subprojects { subproject ->
+  afterEvaluate {
+    if (subproject.plugins.hasPlugin("kotlin")) {
+      subproject.kotlin.copyClassesToJavaOutput = true
+      subproject.jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+  }
+}
