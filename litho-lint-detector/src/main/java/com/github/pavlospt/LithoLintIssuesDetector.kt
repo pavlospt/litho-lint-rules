@@ -6,6 +6,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.github.pavlospt.misc.IssuesInfo
 import com.github.pavlospt.misc.LithoLintConstants
 import com.github.pavlospt.utils.PsiUtils
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiModifier
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
@@ -68,7 +69,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
           if (shouldReportClass) {
             context?.report(IssuesInfo.LAYOUT_SPEC_NAME_ISSUE, it,
-                context.getLocation(uClass as UElement),
+                context.getLocation(uClass.psi.nameIdentifier as PsiElement),
                 IssuesInfo.LAYOUT_SPEC_CLASS_NAME_ISSUE_DESC)
           }
         }
@@ -137,7 +138,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
           val psiParameter = parametersList[indexOfFirstOptionalProp]
 
           context?.report(IssuesInfo.OPTIONAL_PROP_BEFORE_REQUIRED_ISSUE, psiParameter as UElement,
-              context.getLocation(psiParameter as UElement),
+              context.getLocation(psiParameter.psi.nameIdentifier as PsiElement),
               IssuesInfo.OPTIONAL_PROP_BEFORE_REQUIRED_ISSUE_DESC)
           break
         }
@@ -158,7 +159,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
           if (shouldReportParameter) {
             val lintFix = fix().replace().text(parameter.name).with("c").build()
             context?.report(IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_ISSUE, parameter as UElement,
-                context.getLocation(parameter as UElement),
+                context.getLocation(parameter.psi.nameIdentifier as PsiElement),
                 IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_DESC, lintFix)
           }
         }
@@ -183,7 +184,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
         if (shouldReportMethod) {
           context?.report(IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE, uMethod as UElement,
-              context.getLocation(uMethod as UElement),
+              context.getLocation(uMethod.psi.nameIdentifier as PsiElement),
               IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE_DESC)
         }
       }
