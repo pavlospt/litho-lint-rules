@@ -42,10 +42,9 @@ public class LithoIssuesDetectorTest {
       + "        .textColorRes(android.R.color.white)\n"
       + "        .textSizeSp(18)\n"
       + "        .textAlignment(Layout.Alignment.ALIGN_CENTER)\n"
-      + "        .withLayout()\n"
       + "        .alignSelf(YogaAlign.STRETCH)\n"
       + "        .paddingDip(ALL, 8)\n"
-      + "        .build();\n"
+      + "        .buildWithLayout();\n"
       + "  }\n"
       + "}\n");
 
