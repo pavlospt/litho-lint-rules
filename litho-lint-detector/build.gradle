@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
 sourceCompatibility = "1.7"
@@ -13,24 +13,33 @@ dependencies {
   implementation deps.lint.checks
   lintChecks files(jar)
   implementation deps.kotlin.stdLibJre8
+
+  testImplementation deps.lint.core
+  testImplementation deps.lint.tests
 }
 
 jar {
   manifest {
-    attributes('Lint-Registry': 'com.github.pavlospt.LithoIssueRegistry')
+    attributes('Lint-Registry-v2': 'com.github.pavlospt.LithoIssueRegistry')
   }
 }
+
+// Runs the copyLintJar task after assemble has completed.
+task install(type: Copy, dependsOn: assemble) {
+  from configurations.lintChecks
+  into System.getProperty('user.home') + '/.android/lint/'
+}
+
+assemble.finalizedBy(install)
+//
+
+defaultTasks 'assemble'
+
 buildscript {
   repositories {
     mavenCentral()
   }
   dependencies {
     classpath deps.kotlin.gradlePlugin
-  }
-}
-repositories {
-  mavenCentral()
-  maven {
-    url "https://maven.google.com"
   }
 }

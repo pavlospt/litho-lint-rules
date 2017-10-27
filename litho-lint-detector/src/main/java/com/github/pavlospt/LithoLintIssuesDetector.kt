@@ -1,74 +1,75 @@
 package com.github.pavlospt
 
+import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.JavaContext
 import com.github.pavlospt.misc.IssuesInfo
 import com.github.pavlospt.misc.LithoLintConstants
 import com.github.pavlospt.utils.PsiUtils
-import com.intellij.psi.JavaElementVisitor
-import com.intellij.psi.JavaRecursiveElementVisitor
-import com.intellij.psi.PsiAnnotation
-import com.intellij.psi.PsiAnnotationParameterList
-import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
+import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UNamedExpression
+import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 
 class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
-  override fun getApplicablePsiTypes(): List<Class<out PsiElement>> {
-    return listOf<Class<out PsiElement>>(PsiClass::class.java)
+  override fun getApplicableUastTypes(): List<Class<out UElement>> {
+    return listOf<Class<out UElement>>(UClass::class.java)
   }
 
-  override fun createPsiVisitor(context: JavaContext?): JavaElementVisitor {
-    return object : JavaElementVisitor() {
-      override fun visitClass(node: PsiClass) {
-        node.accept(LithoVisitor(context))
+  override fun createUastHandler(context: JavaContext?): UElementHandler {
+    return object : UElementHandler() {
+      override fun visitClass(uClass: UClass?) {
+        uClass?.accept(LithoVisitor(context))
       }
 
-      override fun visitMethod(method: PsiMethod) {
-        method.accept(LithoVisitor(context))
+      override fun visitMethod(uMethod: UMethod?) {
+        uMethod?.accept(LithoVisitor(context))
       }
     }
   }
 
-  internal class LithoVisitor(private val context: JavaContext?) : JavaRecursiveElementVisitor() {
+  internal class LithoVisitor(private val context: JavaContext?) : AbstractUastVisitor() {
 
     private val INVALID_POSITION = -1
 
-    override fun visitClass(psiClass: PsiClass) {
-      detectAnnotatedClassNameIssue(context, psiClass)
-      super.visitClass(psiClass)
+    override fun visitClass(node: UClass): Boolean {
+      detectAnnotatedClassNameIssue(context, node)
+      return super.visitClass(node)
     }
 
-    override fun visitMethod(psiMethod: PsiMethod) {
-      detectMethodVisibilityIssue(psiMethod)
-      detectComponentContextNameIssue(psiMethod)
-      detectOptionalPropOrderIssue(psiMethod)
-      detectPossibleResourceTypesIssue(psiMethod)
-      super.visitMethod(psiMethod)
+    override fun visitMethod(node: UMethod): Boolean {
+      detectMethodVisibilityIssue(node)
+      detectComponentContextNameIssue(node)
+      detectOptionalPropOrderIssue(node)
+      detectPossibleResourceTypesIssue(node)
+      return super.visitMethod(node)
     }
 
     // Detect annotated class name issue
-    private fun detectAnnotatedClassNameIssue(context: JavaContext?, psiClass: PsiClass) {
-      if (!PsiUtils.hasAnnotations(psiClass.modifierList)) return
+    private fun detectAnnotatedClassNameIssue(context: JavaContext?, uClass: UClass) {
+      if (!PsiUtils.hasAnnotations(uClass.modifierList)) return
 
-      val annotations = psiClass.modifierList?.annotations
+      val annotations = uClass.modifierList?.annotations
 
       annotations?.let {
         it.forEach annotationsLoop@ {
           val worthCheckingClass = LithoLintConstants.LAYOUT_SPEC_ANNOTATION == it.qualifiedName
 
-          val psiClassName = psiClass.name ?: return@annotationsLoop
+          val psiClassName = uClass.name ?: return@annotationsLoop
 
-          val notSuggestedName = psiClassName in LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT
+          val notSuggestedName = LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT !in psiClassName
 
           val shouldReportClass = worthCheckingClass && notSuggestedName
 
           if (shouldReportClass) {
             context?.report(IssuesInfo.LAYOUT_SPEC_NAME_ISSUE, it,
-                context.getLocation(psiClass.nameIdentifier),
+                context.getLocation(uClass.psi.nameIdentifier as PsiElement),
                 IssuesInfo.LAYOUT_SPEC_CLASS_NAME_ISSUE_DESC)
           }
         }
@@ -76,84 +77,68 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
     }
 
     // Detect possible resource types issue
-    private fun detectPossibleResourceTypesIssue(psiMethod: PsiMethod) {
-      if (!worthCheckingMethod(psiMethod)) return
+    private fun detectPossibleResourceTypesIssue(uMethod: UMethod) {
+      if (!worthCheckingMethod(uMethod)) return
 
-      val parametersList = psiMethod.parameterList
-      val parameters = parametersList.parameters
+      val parametersList = uMethod.uastParameters
 
-      for (parameter in parameters) {
+      for (parameter in parametersList) {
         if (parameter.type.canonicalText
             !in LithoLintConstants.POSSIBLE_RESOURCE_PARAMETER_TYPES) continue
 
-        val annotations = parameter.modifierList?.annotations
+        val annotations = parameter.annotations
 
-        annotations
-            ?.let {
-              it.filter {
-                LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName
-              }.forEach {
-                context?.report(IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE, parameter,
-                    context.getLocation(parameter), IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE_DESC)
-              }
-            }
+        annotations.filter {
+          LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName
+        }.forEach {
+          context?.report(IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE, parameter as UElement,
+              context.getLocation(parameter as UElement),
+              IssuesInfo.POSSIBLE_RESOURCE_TYPE_ISSUE_DESC)
+        }
       }
     }
 
     // Detect wrong props order issue
-    private fun detectOptionalPropOrderIssue(psiMethod: PsiMethod) {
-      if (!worthCheckingMethod(psiMethod)) return
+    private fun detectOptionalPropOrderIssue(uMethod: UMethod) {
+      if (!worthCheckingMethod(uMethod)) return
 
-      val parametersList = psiMethod.parameterList
-      val parameters = parametersList.parameters
+      val parametersList = uMethod.uastParameters
 
       var indexOfFirstRequiredProp = INVALID_POSITION
       var indexOfFirstOptionalProp = INVALID_POSITION
 
-      for (i in parameters.indices) {
-        val parameter = parameters[i]
+      for (i in parametersList.indices) {
+        val parameter = parametersList[i]
 
         if (!PsiUtils.hasAnnotations(parameter.modifierList)) continue
 
-        val annotations = parameter.modifierList?.annotations
+        val annotations = parameter.annotations
 
-        var propAnnotation: PsiAnnotation? = null
+        val propAnnotation: UAnnotation = annotations.find {
+          LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName
+        } ?: continue
 
-        annotations?.let {
-          propAnnotation = it.find {
-            LithoLintConstants.PROP_PARAMETER_ANNOTATION == it.qualifiedName
-          }
-        }
+        val annotationParameters: List<UNamedExpression> = propAnnotation.attributeValues
 
-        if (propAnnotation == null) continue
-
-        val psiAnnotationParameterList: PsiAnnotationParameterList? = propAnnotation?.parameterList
-
-        if (psiAnnotationParameterList != null) {
-          val psiNameValuePairs = psiAnnotationParameterList.attributes
-
-          if (psiNameValuePairs.isEmpty()) {
-            indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i)
-          } else {
-            for (psiNameValuePair in psiNameValuePairs) {
-              if (LithoLintConstants.OPTIONAL_PROP_ATTRIBUTE_NAME == psiNameValuePair.name) {
-                indexOfFirstOptionalProp = assignPositionIfInvalid(indexOfFirstOptionalProp, i)
-              } else {
-                indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i)
-              }
+        if (annotationParameters.isEmpty()) {
+          indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i)
+        } else {
+          for (psiNameValuePair in annotationParameters) {
+            if (LithoLintConstants.OPTIONAL_PROP_ATTRIBUTE_NAME == psiNameValuePair.name) {
+              indexOfFirstOptionalProp = assignPositionIfInvalid(indexOfFirstOptionalProp, i)
+            } else {
+              indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i)
             }
           }
-        } else {
-          indexOfFirstRequiredProp = assignPositionIfInvalid(indexOfFirstRequiredProp, i)
         }
 
         if (indexOfFirstOptionalProp != INVALID_POSITION
             && indexOfFirstRequiredProp != INVALID_POSITION
             && indexOfFirstOptionalProp < indexOfFirstRequiredProp) {
-          val psiParameter = parameters[indexOfFirstOptionalProp]
+          val psiParameter = parametersList[indexOfFirstOptionalProp]
 
-          context?.report(IssuesInfo.OPTIONAL_PROP_BEFORE_REQUIRED_ISSUE, psiParameter,
-              context.getLocation(psiParameter),
+          context?.report(IssuesInfo.OPTIONAL_PROP_BEFORE_REQUIRED_ISSUE, psiParameter as UElement,
+              context.getLocation(psiParameter.psi.nameIdentifier as PsiElement),
               IssuesInfo.OPTIONAL_PROP_BEFORE_REQUIRED_ISSUE_DESC)
           break
         }
@@ -161,11 +146,10 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
     }
 
     // Detect component context name issue
-    private fun detectComponentContextNameIssue(psiMethod: PsiMethod) {
-      if (!worthCheckingMethod(psiMethod)) return
+    private fun detectComponentContextNameIssue(uMethod: UMethod) {
+      if (!worthCheckingMethod(uMethod)) return
 
-      val parametersList = psiMethod.parameterList
-      val parameters = parametersList.parameters
+      val parameters = uMethod.uastParameters
 
       for (parameter in parameters) {
         if (parameter.type
@@ -173,43 +157,51 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
           val shouldReportParameter = LithoLintConstants.COMPONENT_CONTEXT_DESIRABLE_PARAMETER_NAME != parameter.name
 
           if (shouldReportParameter) {
-            context?.report(IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_ISSUE, parameter,
-                context.getLocation(parameter.nameIdentifier),
-                IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_DESC)
+            val lintFix = fix().replace().text(parameter.name).with("c").build()
+            context?.report(IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_ISSUE, parameter as UElement,
+                context.getLocation(parameter.psi.nameIdentifier as PsiElement),
+                IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_DESC, lintFix)
           }
         }
       }
     }
 
     // Detect method visibility issue
-    private fun detectMethodVisibilityIssue(psiMethod: PsiMethod) {
-      if (!PsiUtils.hasAnnotations(psiMethod.modifierList)) return
+    private fun detectMethodVisibilityIssue(uMethod: UMethod) {
+      if (!PsiUtils.hasAnnotations(uMethod.modifierList)) return
 
-      val annotations = psiMethod.modifierList.annotations
+      val annotations = uMethod.annotations
 
       for (annotation in annotations) {
         val worthCheckingMethod = LithoLintConstants.ALL_METHOD_ANNOTATIONS
             .contains(annotation.qualifiedName)
 
-        val notSuggestedVisibility = !psiMethod.modifierList.hasModifierProperty(
-            PsiModifier.PACKAGE_LOCAL) || !psiMethod.modifierList.hasExplicitModifier(
-            PsiModifier.STATIC)
+        val notSuggestedVisibility = !uMethod.modifierList.hasModifierProperty(
+            PsiModifier.PACKAGE_LOCAL)
+        val missesStaticModifier = !uMethod.modifierList.hasExplicitModifier(PsiModifier.STATIC)
 
-        val shouldReportMethod = worthCheckingMethod && notSuggestedVisibility
+        val shouldReportMethodVisibility = worthCheckingMethod && notSuggestedVisibility
+        val shouldReportMissingStaticModifier = worthCheckingMethod && missesStaticModifier
 
-        if (shouldReportMethod) {
-          context?.report(IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE, psiMethod,
-              context.getLocation(psiMethod.nameIdentifier),
+        if (shouldReportMethodVisibility) {
+          context?.report(IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE, uMethod as UElement,
+              context.getLocation(uMethod.psi.nameIdentifier as PsiElement),
               IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE_DESC)
+        }
+
+        if (shouldReportMissingStaticModifier) {
+          context?.report(IssuesInfo.MISSING_STATIC_MODIFIER_ISSUE, uMethod as UElement,
+              context.getLocation(uMethod.psi.nameIdentifier as PsiElement),
+              IssuesInfo.MISSING_STATIC_MODIFIER_ISSUE_DESC)
         }
       }
     }
 
     // Utility method
-    private fun worthCheckingMethod(psiMethod: PsiMethod): Boolean {
-      if (!PsiUtils.hasAnnotations(psiMethod.modifierList)) return false
+    private fun worthCheckingMethod(uMethod: UMethod): Boolean {
+      if (!PsiUtils.hasAnnotations(uMethod.modifierList)) return false
 
-      val annotations = psiMethod.modifierList.annotations
+      val annotations = uMethod.annotations
 
       var worthCheckingMethod = false
 
@@ -220,7 +212,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
         if (worthCheckingMethod) break
       }
 
-      return worthCheckingMethod && PsiUtils.hasParameters(psiMethod)
+      return worthCheckingMethod && PsiUtils.hasParameters(uMethod)
     }
 
     // Utility method

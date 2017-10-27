@@ -29,9 +29,8 @@ public class RandomCompSpec {
         .textColorRes(android.R.color.white)
         .textSizeSp(18)
         .textAlignment(Layout.Alignment.ALIGN_CENTER)
-        .withLayout()
         .alignSelf(YogaAlign.STRETCH)
         .paddingDip(ALL, 8)
-        .build();
+        .buildWithLayout();
   }
 }

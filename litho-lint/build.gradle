@@ -15,6 +15,7 @@ android {
     textReport true
     textOutput 'stdout'
   }
+  buildToolsVersion '26.0.2'
 }
 
 configurations {
