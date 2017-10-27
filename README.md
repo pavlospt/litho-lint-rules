@@ -4,6 +4,8 @@ Litho Lint rules is a project that contains Lint rules generated according to [L
 
 * `AnnotatedMethodVisibility` - Checks whether a lifecycle method has the proper visibility (package-private & static)
 
+* `MissingStaticModifier` - Checks whether a lifecycle method has static modifier
+
 * `ComponentContextName` - Checks whether `ComponentContextName` on a lifecycle method is named as `c` for less code verbosity and more readability
 
 * `LayoutSpecClassName` - Checks whether a `@LayoutSpec` or `@MountSpec` annotated class is properly named
@@ -15,7 +17,7 @@ Litho Lint rules is a project that contains Lint rules generated according to [L
 ## Usage
 
 ```groovy
-compile 'com.github.pavlospt:litho-lint:1.0'
+compile 'com.github.pavlospt:litho-lint:1.2'
 ```
 
 Run `Code Inspection` through Android Studio or just run `./gradlew clean :app:lint`
