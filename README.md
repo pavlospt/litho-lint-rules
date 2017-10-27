@@ -1,6 +1,6 @@
 # Litho Lint Rules
 
-Litho Lint rules is a project that contains Lint rules generated according to [Litho Best Practices](http://fblitho.com/docs/best-practices). It contains 5 rules:
+Litho Lint rules is a project that contains Lint rules generated according to [Litho Best Practices](http://fblitho.com/docs/best-practices). It contains 6 rules:
 
 * `AnnotatedMethodVisibility` - Checks whether a lifecycle method has the proper visibility (package-private & static)
 
