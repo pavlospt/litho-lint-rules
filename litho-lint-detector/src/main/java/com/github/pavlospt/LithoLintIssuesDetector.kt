@@ -177,15 +177,22 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
             .contains(annotation.qualifiedName)
 
         val notSuggestedVisibility = !uMethod.modifierList.hasModifierProperty(
-            PsiModifier.PACKAGE_LOCAL) || !uMethod.modifierList.hasExplicitModifier(
-            PsiModifier.STATIC)
+            PsiModifier.PACKAGE_LOCAL)
+        val missesStaticModifier = !uMethod.modifierList.hasExplicitModifier(PsiModifier.STATIC)
 
-        val shouldReportMethod = worthCheckingMethod && notSuggestedVisibility
+        val shouldReportMethodVisibility = worthCheckingMethod && notSuggestedVisibility
+        val shouldReportMissingStaticModifier = worthCheckingMethod && missesStaticModifier
 
-        if (shouldReportMethod) {
+        if (shouldReportMethodVisibility) {
           context?.report(IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE, uMethod as UElement,
               context.getLocation(uMethod.psi.nameIdentifier as PsiElement),
               IssuesInfo.ANNOTATED_METHOD_VISIBILITY_ISSUE_DESC)
+        }
+
+        if (shouldReportMissingStaticModifier) {
+          context?.report(IssuesInfo.MISSING_STATIC_MODIFIER_ISSUE, uMethod as UElement,
+              context.getLocation(uMethod.psi.nameIdentifier as PsiElement),
+              IssuesInfo.MISSING_STATIC_MODIFIER_ISSUE_DESC)
         }
       }
     }

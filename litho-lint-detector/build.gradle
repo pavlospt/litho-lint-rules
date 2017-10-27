@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
 sourceCompatibility = "1.7"
@@ -20,7 +20,7 @@ dependencies {
 
 jar {
   manifest {
-    attributes('Lint-Registry': 'com.github.pavlospt.LithoIssueRegistry')
+    attributes('Lint-Registry-v2': 'com.github.pavlospt.LithoIssueRegistry')
   }
 }
 
@@ -41,11 +41,5 @@ buildscript {
   }
   dependencies {
     classpath deps.kotlin.gradlePlugin
-  }
-}
-repositories {
-  mavenCentral()
-  maven {
-    url "https://maven.google.com"
   }
 }

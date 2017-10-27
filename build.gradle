@@ -7,8 +7,8 @@ buildscript {
                   'constraintLayout': '1.0.2',
                   'soLoader'        : '0.2.0',
                   'litho'           : '0.7.0',
-                  'androidPlugin'   : '3.0.0-rc1',
-                  'androidTools'    : '26.0.0-rc1',
+                  'androidPlugin'   : '3.0.0',
+                  'androidTools'    : '26.0.0',
                   'kotlin'          : '1.1.51']
 
   ext.deps = [android : ['gradlePlugin': "com.android.tools.build:gradle:${versions.androidPlugin}"],
@@ -39,6 +39,7 @@ buildscript {
 allprojects {
   repositories {
     jcenter()
+    mavenCentral()
     google()
   }
 }
