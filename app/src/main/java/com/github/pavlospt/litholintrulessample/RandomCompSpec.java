@@ -2,8 +2,8 @@ package com.github.pavlospt.litholintrulessample;
 
 import android.graphics.drawable.Drawable;
 import android.text.Layout;
+import com.facebook.litho.Component;
 import com.facebook.litho.ComponentContext;
-import com.facebook.litho.ComponentLayout;
 import com.facebook.litho.annotations.LayoutSpec;
 import com.facebook.litho.annotations.OnCreateLayout;
 import com.facebook.litho.annotations.Prop;
@@ -20,7 +20,7 @@ import static com.facebook.yoga.YogaEdge.ALL;
 public class RandomCompSpec {
 
   @OnCreateLayout
-  public static ComponentLayout onCreateLayout(ComponentContext context,
+  public static Component onCreateLayout(ComponentContext context,
       @Prop(optional = true) String test, @Prop String text, @Prop(optional = true) float ratio,
       @Prop(optional = true) Drawable drawable) {
     return Text.create(context)
@@ -31,6 +31,6 @@ public class RandomCompSpec {
         .textAlignment(Layout.Alignment.ALIGN_CENTER)
         .alignSelf(YogaAlign.STRETCH)
         .paddingDip(ALL, 8)
-        .buildWithLayout();
+        .build();
   }
 }
