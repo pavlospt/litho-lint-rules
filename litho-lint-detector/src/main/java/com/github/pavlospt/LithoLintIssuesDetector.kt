@@ -3,6 +3,7 @@ package com.github.pavlospt
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintFix
 import com.github.pavlospt.misc.IssuesInfo
 import com.github.pavlospt.misc.LithoLintConstants
 import com.github.pavlospt.utils.PsiUtils
@@ -22,14 +23,14 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
     return listOf<Class<out UElement>>(UClass::class.java)
   }
 
-  override fun createUastHandler(context: JavaContext?): UElementHandler {
+  override fun createUastHandler(context: JavaContext): UElementHandler? {
     return object : UElementHandler() {
-      override fun visitClass(uClass: UClass?) {
-        uClass?.accept(LithoVisitor(context))
+      override fun visitClass(node: UClass) {
+        node.accept(LithoVisitor(context))
       }
 
-      override fun visitMethod(uMethod: UMethod?) {
-        uMethod?.accept(LithoVisitor(context))
+      override fun visitMethod(node: UMethod) {
+        node.accept(LithoVisitor(context))
       }
     }
   }
@@ -58,7 +59,7 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
       val annotations = uClass.modifierList?.annotations
 
       annotations?.let {
-        it.forEach annotationsLoop@ {
+        it.forEach annotationsLoop@{
           val worthCheckingClass = LithoLintConstants.LAYOUT_SPEC_ANNOTATION == it.qualifiedName
 
           val psiClassName = uClass.name ?: return@annotationsLoop
@@ -153,11 +154,11 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
 
       for (parameter in parameters) {
         if (parameter.type
-            .canonicalText == LithoLintConstants.COMPONENT_CONTEXT_CLASS_NAME) {
+                .canonicalText == LithoLintConstants.COMPONENT_CONTEXT_CLASS_NAME) {
           val shouldReportParameter = LithoLintConstants.COMPONENT_CONTEXT_DESIRABLE_PARAMETER_NAME != parameter.name
 
           if (shouldReportParameter) {
-            val lintFix = fix().replace().text(parameter.name).with("c").build()
+            val lintFix = LintFix.create().replace().text(parameter.name).with("c").build()
             context?.report(IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_ISSUE, parameter as UElement,
                 context.getLocation(parameter.psi.nameIdentifier as PsiElement),
                 IssuesInfo.COMPONENT_CONTEXT_NAME_ISSUE_DESC, lintFix)

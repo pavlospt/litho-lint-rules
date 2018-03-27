@@ -1,15 +1,15 @@
 buildscript {
   ext.versions = [
           'minSdk'          : 15,
-          'compileSdk'      : 26,
-          'targetSdk'       : 26,
-          'buildTools'      : '26.0.3',
-          'supportLibrary'  : '26.1.0',
+          'compileSdk'      : 27,
+          'targetSdk'       : 27,
+          'buildTools'      : '27.0.3',
+          'supportLibrary'  : '27.1.0',
           'constraintLayout': '1.0.2',
           'soLoader'        : '0.2.0',
-          'litho'           : '0.12.0',
-          'androidPlugin'   : '3.0.1',
-          'androidTools'    : '26.0.0',
+          'litho'           : '0.13.1',
+          'androidPlugin'   : '3.1.0',
+          'androidTools'    : '26.1.0-rc03',
           'kotlin'          : '1.2.21'
   ]
 
@@ -20,9 +20,11 @@ buildscript {
                      'annotations'     : "com.android.support:support-annotations:${versions.supportLibrary}",
                      'constraintLayout': "com.android.support.constraint:constraint-layout:${versions.constraintLayout}"],
           lint    : ['core'  : "com.android.tools.lint:lint:${versions.androidTools}",
+                     'kotlin': "com.android.tools.lint:lint-kotlin:{$versions.androidTools}",
                      'api'   : "com.android.tools.lint:lint-api:${versions.androidTools}",
                      'checks': "com.android.tools.lint:lint-checks:${versions.androidTools}",
-                     'tests' : "com.android.tools.lint:lint-tests:${versions.androidTools}"],
+                     'tests' : "com.android.tools.lint:lint-tests:${versions.androidTools}"
+          ],
           kotlin  : ['stdLibJre8'  : "org.jetbrains.kotlin:kotlin-stdlib-jre8:${versions.kotlin}",
                      'gradlePlugin': "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"],
           facebook: ['soLoader'        : "com.facebook.soloader:soloader:${versions.soLoader}",
