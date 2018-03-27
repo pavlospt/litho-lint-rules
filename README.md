@@ -17,7 +17,7 @@ Litho Lint rules is a project that contains Lint rules generated according to [L
 ## Usage
 
 ```groovy
-compile 'com.github.pavlospt:litho-lint:1.3'
+compile 'com.github.pavlospt:litho-lint:1.4'
 ```
 
 Run `Code Inspection` through Android Studio or just run `./gradlew clean :app:lint`
