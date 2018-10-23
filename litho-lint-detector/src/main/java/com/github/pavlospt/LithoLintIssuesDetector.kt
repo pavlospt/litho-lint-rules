@@ -56,23 +56,21 @@ class LithoLintIssuesDetector : Detector(), Detector.UastScanner {
     private fun detectAnnotatedClassNameIssue(context: JavaContext?, uClass: UClass) {
       if (!PsiUtils.hasAnnotations(uClass.modifierList)) return
 
-      val annotations = uClass.modifierList?.annotations
+      val annotations = uClass.modifierList?.annotations ?: return
 
-      annotations?.let {
-        it.forEach annotationsLoop@{
-          val worthCheckingClass = LithoLintConstants.LAYOUT_SPEC_ANNOTATION == it.qualifiedName
+      annotations.forEach {
+        val worthCheckingClass = LithoLintConstants.LAYOUT_SPEC_ANNOTATION == it.qualifiedName
 
-          val psiClassName = uClass.name ?: return@annotationsLoop
+        val psiClassName = uClass.name ?: return@forEach
 
-          val notSuggestedName = LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT !in psiClassName
+        val notSuggestedName = LithoLintConstants.SUGGESTED_LAYOUT_COMPONENT_SPEC_NAME_FORMAT !in psiClassName
 
-          val shouldReportClass = worthCheckingClass && notSuggestedName
+        val shouldReportClass = worthCheckingClass && notSuggestedName
 
-          if (shouldReportClass) {
-            context?.report(IssuesInfo.LAYOUT_SPEC_NAME_ISSUE, it,
-                context.getLocation(uClass.psi.nameIdentifier as PsiElement),
-                IssuesInfo.LAYOUT_SPEC_CLASS_NAME_ISSUE_DESC)
-          }
+        if (shouldReportClass) {
+          context?.report(IssuesInfo.LAYOUT_SPEC_NAME_ISSUE, it,
+              context.getLocation(uClass.psi.nameIdentifier as PsiElement),
+              IssuesInfo.LAYOUT_SPEC_CLASS_NAME_ISSUE_DESC)
         }
       }
     }
